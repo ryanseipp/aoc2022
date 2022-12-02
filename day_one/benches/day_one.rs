@@ -6,10 +6,11 @@ use day_one::{part_one, part_two};
 fn benchmark(c: &mut Criterion) {
     let input = fs::read_to_string("input.txt").expect("File input.txt should exist");
 
-    c.bench_with_input(BenchmarkId::new("part_one", "real"), &input, |b, i| {
+    let mut group = c.benchmark_group("day_one");
+    group.bench_with_input(BenchmarkId::new("part_one", "iterator"), &input, |b, i| {
         b.iter(|| part_one(i))
     });
-    c.bench_with_input(BenchmarkId::new("part_two", "real"), &input, |b, i| {
+    group.bench_with_input(BenchmarkId::new("part_two", "iterator"), &input, |b, i| {
         b.iter(|| part_two(i))
     });
 }
