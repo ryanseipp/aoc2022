@@ -2,4 +2,18 @@
 
 members = [
     "day_one",
+    "day_two",
 ]
+
+[workspace.dependencies]
+criterion = "0.4"
+
+[profile.release]
+opt-level = 3 # highest level of optimizations applied
+lto = true # removes dead code and often provides better optimizations
+strip = true # automatically strip symbols from the binary
+
+[profile.bench]
+opt-level = 3
+lto = true
+strip = true

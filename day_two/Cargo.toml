@@ -1,5 +1,5 @@
 [package]
-name = "day_one"
+name = "day_two"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,5 +11,5 @@ edition = "2021"
 criterion.workspace = true
 
 [[bench]]
-name = "day_one"
+name = "day_two"
 harness = false
