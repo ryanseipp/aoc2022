@@ -1,37 +1,20 @@
 pub fn part_one(input: &str) -> i32 {
     let contents: Vec<&str> = input.split('\n').collect();
-
-    let mut elves: Vec<Vec<i32>> = Vec::new();
-    let mut elf: Vec<i32> = Vec::new();
-    for &content in contents.iter() {
-        if content == "" {
-            elves.push(elf);
-            elf = Vec::new();
-        } else {
-            elf.push(content.parse().unwrap());
-        }
-    }
-
-    return elves.iter().map(|elf| elf.iter().sum()).max().unwrap();
+    return contents
+        .split(|&i| i == "")
+        .map(|elf| elf.iter().map(|x| x.parse::<i32>().unwrap()).sum::<i32>())
+        .max()
+        .unwrap();
 }
 
 pub fn part_two(input: &str) -> i32 {
     let contents: Vec<&str> = input.split('\n').collect();
+    let mut sums: Vec<i32> = contents
+        .split(|&i| i == "")
+        .map(|elf| elf.iter().map(|x| x.parse::<i32>().unwrap()).sum::<i32>())
+        .collect();
 
-    let mut elves: Vec<Vec<i32>> = Vec::new();
-    let mut elf: Vec<i32> = Vec::new();
-    for &content in contents.iter() {
-        if content == "" {
-            elves.push(elf);
-            elf = Vec::new();
-        } else {
-            elf.push(content.parse().unwrap());
-        }
-    }
-
-    let mut sums: Vec<i32> = elves.iter().map(|elf| elf.iter().sum()).collect();
     sums.sort_by(|a, b| b.partial_cmp(a).unwrap());
-
     return sums.iter().take(3).sum();
 }
 
