@@ -14,7 +14,7 @@ pub fn part_two(input: &str) -> i32 {
         .map(|elf| elf.iter().map(|x| x.parse::<i32>().unwrap()).sum::<i32>())
         .collect();
 
-    sums.sort_by(|a, b| b.partial_cmp(a).unwrap());
+    sums.sort_by(|a, b| b.cmp(a));
     return sums.iter().take(3).sum();
 }
 
