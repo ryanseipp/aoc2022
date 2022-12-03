@@ -1,7 +1,7 @@
 use std::fs;
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use day_three::{part_one, part_two};
+use day03::{part_one, part_two};
 
 fn benchmark(c: &mut Criterion) {
     let input = fs::read_to_string("input.txt").expect("File input.txt should exist");

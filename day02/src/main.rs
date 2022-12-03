@@ -1,5 +1,6 @@
-use day_one::{part_one, part_two};
 use std::fs;
+
+use day02::{part_one, part_two};
 
 fn main() {
     let input = fs::read_to_string("input.txt").expect("File input.txt should exist");

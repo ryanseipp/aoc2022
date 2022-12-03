@@ -1,9 +1,9 @@
 [workspace]
 
 members = [
-    "day_one",
-    "day_two",
-    "day_three",
+    "day01",
+    "day02",
+    "day03",
 ]
 
 [workspace.dependencies]

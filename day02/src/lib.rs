@@ -86,7 +86,7 @@ pub fn part_two(input: &str) -> i32 {
     let raw_input: Vec<&str> = input.split('\n').collect();
     let games: Vec<char> = raw_input
         .iter()
-        .take_while(|i| i.len() > 0)
+        .filter(|i| i.len() > 0)
         .flat_map(|s| s.chars().filter(|&c| c != ' '))
         .collect();
 
