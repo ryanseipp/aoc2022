@@ -1,25 +1,38 @@
-#[derive(PartialEq, Eq, Clone)]
-enum RockPaperScissors {
+#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+enum Hand {
     Rock,
     Paper,
     Scissors,
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug)]
 enum MatchResult {
     Loss,
     Draw,
     Win,
 }
 
-fn determine_result(mine: RockPaperScissors, theirs: RockPaperScissors) -> MatchResult {
+fn map_hand(choice: char) -> Option<Hand> {
+    const HANDS: [Hand; 3] = [Hand::Rock, Hand::Paper, Hand::Scissors];
+
+    let decimal_utf8 = choice as u32;
+    return match decimal_utf8 {
+        // A to C (utf-8)
+        65..=67 => Some(HANDS[(decimal_utf8 - 65) as usize]),
+        // X to Z (utf-8)
+        88..=90 => Some(HANDS[(decimal_utf8 - 88) as usize]),
+        _ => None,
+    };
+}
+
+fn determine_winner(mine: Hand, theirs: Hand) -> MatchResult {
     if mine == theirs {
         return MatchResult::Draw;
     }
 
-    if (mine == RockPaperScissors::Rock && theirs == RockPaperScissors::Scissors)
-        || (mine == RockPaperScissors::Paper && theirs == RockPaperScissors::Rock)
-        || (mine == RockPaperScissors::Scissors && theirs == RockPaperScissors::Paper)
+    if (mine == Hand::Rock && theirs == Hand::Scissors)
+        || (mine == Hand::Paper && theirs == Hand::Rock)
+        || (mine == Hand::Scissors && theirs == Hand::Paper)
     {
         return MatchResult::Win;
     }
@@ -27,86 +40,65 @@ fn determine_result(mine: RockPaperScissors, theirs: RockPaperScissors) -> Match
     return MatchResult::Loss;
 }
 
-fn score_result(hand: RockPaperScissors, result: MatchResult) -> i32 {
-    let mut score = 0;
+fn get_desired_result(choice: char) -> Option<MatchResult> {
+    const RESULTS: [MatchResult; 3] = [MatchResult::Loss, MatchResult::Draw, MatchResult::Win];
 
-    if hand == RockPaperScissors::Rock {
-        score += 1;
-    } else if hand == RockPaperScissors::Paper {
-        score += 2;
-    } else if hand == RockPaperScissors::Scissors {
-        score += 3;
-    }
+    let decimal_utf8 = choice as u32;
+    return match decimal_utf8 {
+        88..=90 => Some(RESULTS[(decimal_utf8 - 88) as usize]),
+        _ => None,
+    };
+}
 
+fn get_hand_from_result(theirs: Hand, result: MatchResult) -> Hand {
     if result == MatchResult::Draw {
-        score += 3;
-    } else if result == MatchResult::Win {
-        score += 6;
-    }
-
-    return score;
-}
-
-fn map_hand(hand: &str) -> RockPaperScissors {
-    if hand == "A" || hand == "X" {
-        return RockPaperScissors::Rock;
-    }
-    if hand == "B" || hand == "Y" {
-        return RockPaperScissors::Paper;
-    }
-    return RockPaperScissors::Scissors;
-}
-
-fn get_my_hand(theirs: RockPaperScissors, choice: &str) -> RockPaperScissors {
-    if choice == "Y" {
         return theirs;
     }
 
-    // Lose
-    if choice == "X" {
+    if result == MatchResult::Win {
         return match theirs {
-            RockPaperScissors::Rock => RockPaperScissors::Scissors,
-            RockPaperScissors::Paper => RockPaperScissors::Rock,
-            RockPaperScissors::Scissors => RockPaperScissors::Paper,
+            Hand::Rock => Hand::Paper,
+            Hand::Paper => Hand::Scissors,
+            Hand::Scissors => Hand::Rock,
         };
     }
 
     return match theirs {
-        RockPaperScissors::Rock => RockPaperScissors::Paper,
-        RockPaperScissors::Paper => RockPaperScissors::Scissors,
-        RockPaperScissors::Scissors => RockPaperScissors::Rock,
+        Hand::Rock => Hand::Scissors,
+        Hand::Paper => Hand::Rock,
+        Hand::Scissors => Hand::Paper,
     };
+}
+
+fn score_game(choice: Hand, result: MatchResult) -> i32 {
+    return choice as i32 + 1 + result as i32 * 3;
 }
 
 pub fn part_one(input: &str) -> i32 {
     let games: Vec<&str> = input.split('\n').collect();
-    return games
-        .iter()
-        .take_while(|x| x.len() > 0)
-        .fold(0, |res, &game| {
-            let hands: Vec<&str> = game.split(' ').collect();
-            let theirs = map_hand(hands[0]);
-            let mine = map_hand(hands[1]);
-
-            let result = determine_result(mine.clone(), theirs);
-
-            return res + score_result(mine, result);
-        });
+    return games.iter().filter(|x| x.len() > 0).fold(0, |res, &game| {
+        let hands: Vec<Hand> = game.chars().filter_map(map_hand).collect();
+        return res + score_game(hands[1], determine_winner(hands[1], hands[0]));
+    });
 }
 
 pub fn part_two(input: &str) -> i32 {
-    let games: Vec<&str> = input.split('\n').collect();
+    let raw_input: Vec<&str> = input.split('\n').collect();
+    let games: Vec<char> = raw_input
+        .iter()
+        .take_while(|i| i.len() > 0)
+        .flat_map(|s| s.chars().filter(|&c| c != ' '))
+        .collect();
+
     return games
         .iter()
-        .take_while(|x| x.len() > 0)
-        .fold(0, |res, &game| {
-            let hands: Vec<&str> = game.split(' ').collect();
-            let theirs = map_hand(hands[0]);
-            let mine = get_my_hand(theirs.clone(), hands[1]);
-
-            let result = determine_result(mine.clone(), theirs);
-
-            return res + score_result(mine, result);
+        .step_by(2)
+        .zip(games.iter().skip(1).step_by(2))
+        .fold(0, |res, (&their_choice, &my_result)| {
+            let theirs = map_hand(their_choice).unwrap();
+            let result = get_desired_result(my_result).unwrap();
+            let mine = get_hand_from_result(theirs, result);
+            return res + score_game(mine, result);
         });
 }
 
