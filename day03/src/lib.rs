@@ -1,23 +1,44 @@
 use std::collections::HashSet;
 
 pub fn part_one(input: &str) -> i32 {
-    let rucksacks: Vec<&str> = input.split('\n').collect();
-    let compartments: Vec<(_, _)> = rucksacks
-        .iter()
+    return input
+        .lines()
         .filter(|x| x.len() > 0)
         .map(|ruck| ruck.split_at(ruck.len() / 2))
-        .collect();
+        .fold(0, |res, (comp_a, comp_b)| {
+            let uniq_a: HashSet<_> = comp_a.chars().collect();
+            let uniq_b: HashSet<_> = comp_b.chars().collect();
 
+            let uniq: Vec<_> = uniq_a.intersection(&uniq_b).collect();
+            assert_eq!(uniq.len(), 1);
+
+            let decimal_utf8 = *uniq[0] as u32;
+            return match decimal_utf8 {
+                // A-Z (uppercase)
+                65..=90 => (decimal_utf8 - 65 + 27) as i32,
+                // a-z (lowercase)
+                97..=122 => (decimal_utf8 - 97 + 1) as i32,
+                _ => res,
+            };
+        });
+}
+
+pub fn part_one_imperative(input: &str) -> i32 {
+    let rucksacks: Vec<&str> = input.split('\n').collect();
     let mut sum: i32 = 0;
 
-    for (comp_a, comp_b) in compartments {
+    for ruck in rucksacks {
+        if ruck.len() == 0 {
+            continue;
+        }
+
+        let (comp_a, comp_b) = ruck.split_at(ruck.len() / 2);
         let uniq_a: HashSet<_> = comp_a.chars().collect();
         let uniq_b: HashSet<_> = comp_b.chars().collect();
 
-        let uniq: Vec<_> = uniq_a.intersection(&uniq_b).collect();
-        assert_eq!(uniq.len(), 1);
+        let uniq = uniq_a.intersection(&uniq_b).nth(0).unwrap();
 
-        let decimal_utf8 = *uniq[0] as u32;
+        let decimal_utf8 = *uniq as u32;
         match decimal_utf8 {
             // A-Z (uppercase)
             65..=90 => sum += (decimal_utf8 - 65 + 27) as i32,
@@ -69,6 +90,12 @@ mod test {
     fn part_one_returns_correct_result() {
         let input = fs::read_to_string("input.txt").expect("File input.txt should exist");
         assert_eq!(7746, part_one(input.as_str()));
+    }
+
+    #[test]
+    fn part_one_imperative_returns_correct_result() {
+        let input = fs::read_to_string("input.txt").expect("File input.txt should exist");
+        assert_eq!(7746, part_one_imperative(input.as_str()));
     }
 
     #[test]

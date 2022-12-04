@@ -75,17 +75,34 @@ fn score_game(choice: Hand, result: MatchResult) -> i32 {
 }
 
 pub fn part_one(input: &str) -> i32 {
-    let games: Vec<&str> = input.split('\n').collect();
-    return games.iter().filter(|x| x.len() > 0).fold(0, |res, &game| {
+    return input.lines().filter(|x| x.len() > 0).fold(0, |res, game| {
         let hands: Vec<Hand> = game.chars().filter_map(map_hand).collect();
         return res + score_game(hands[1], determine_winner(hands[1], hands[0]));
     });
 }
 
+pub fn part_one_imperative(input: &str) -> i32 {
+    let games: Vec<&str> = input.split('\n').collect();
+    let mut score: i32 = 0;
+
+    for game in games {
+        if game.len() != 3 {
+            continue;
+        }
+
+        let their_hand = map_hand(game.chars().nth(0).unwrap()).unwrap();
+        let my_hand = map_hand(game.chars().nth(2).unwrap()).unwrap();
+        let result = determine_winner(my_hand, their_hand);
+
+        score += score_game(my_hand, result);
+    }
+
+    return score;
+}
+
 pub fn part_two(input: &str) -> i32 {
-    let raw_input: Vec<&str> = input.split('\n').collect();
-    let games: Vec<char> = raw_input
-        .iter()
+    let games: Vec<char> = input
+        .lines()
         .filter(|i| i.len() > 0)
         .flat_map(|s| s.chars().filter(|&c| c != ' '))
         .collect();
@@ -102,6 +119,25 @@ pub fn part_two(input: &str) -> i32 {
         });
 }
 
+pub fn part_two_imperative(input: &str) -> i32 {
+    let games: Vec<&str> = input.split('\n').collect();
+    let mut score: i32 = 0;
+
+    for game in games {
+        if game.len() != 3 {
+            continue;
+        }
+
+        let their_hand = map_hand(game.chars().nth(0).unwrap()).unwrap();
+        let result = get_desired_result(game.chars().nth(2).unwrap()).unwrap();
+        let my_hand = get_hand_from_result(their_hand, result);
+
+        score += score_game(my_hand, result);
+    }
+
+    return score;
+}
+
 #[cfg(test)]
 mod test {
     use std::fs;
@@ -115,8 +151,20 @@ mod test {
     }
 
     #[test]
+    fn part_one_imperative_returns_correct_result() {
+        let input = fs::read_to_string("input.txt").expect("File input.txt should exist");
+        assert_eq!(14264, part_one_imperative(input.as_str()));
+    }
+
+    #[test]
     fn part_two_returns_correct_result() {
         let input = fs::read_to_string("input.txt").expect("File input.txt should exist");
         assert_eq!(12382, part_two(input.as_str()));
+    }
+
+    #[test]
+    fn part_two_imperative_returns_correct_result() {
+        let input = fs::read_to_string("input.txt").expect("File input.txt should exist");
+        assert_eq!(12382, part_two_imperative(input.as_str()));
     }
 }
