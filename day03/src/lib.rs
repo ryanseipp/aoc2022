@@ -5,50 +5,59 @@ pub fn part_one(input: &str) -> i32 {
         .lines()
         .filter(|x| x.len() > 0)
         .map(|ruck| ruck.split_at(ruck.len() / 2))
-        .fold(0, |res, (comp_a, comp_b)| {
-            let uniq_a: HashSet<_> = comp_a.chars().collect();
-            let uniq_b: HashSet<_> = comp_b.chars().collect();
-
-            let uniq: Vec<_> = uniq_a.intersection(&uniq_b).collect();
-            assert_eq!(uniq.len(), 1);
-
-            let decimal_utf8 = *uniq[0] as u32;
-            return match decimal_utf8 {
+        .map(|(comp_a, comp_b)| {
+            *comp_a
+                .chars()
+                .collect::<HashSet<_>>()
+                .intersection(&comp_b.chars().collect::<HashSet<_>>())
+                .nth(0)
+                .unwrap() as u32
+        })
+        .fold(0, |res, uniq| {
+            return match uniq {
                 // A-Z (uppercase)
-                65..=90 => (decimal_utf8 - 65 + 27) as i32,
+                65..=90 => res + uniq - 65 + 27,
                 // a-z (lowercase)
-                97..=122 => (decimal_utf8 - 97 + 1) as i32,
+                97..=122 => res + uniq - 97 + 1,
                 _ => res,
             };
-        });
+        }) as i32;
 }
 
 pub fn part_one_imperative(input: &str) -> i32 {
     let rucksacks: Vec<&str> = input.split('\n').collect();
-    let mut sum: i32 = 0;
+    let mut sum: u32 = 0;
+    let mut uniq_a: HashSet<char> = HashSet::new();
+    let mut uniq_b: HashSet<char> = HashSet::new();
 
     for ruck in rucksacks {
         if ruck.len() == 0 {
             continue;
         }
 
+        uniq_a.clear();
+        uniq_b.clear();
+
         let (comp_a, comp_b) = ruck.split_at(ruck.len() / 2);
-        let uniq_a: HashSet<_> = comp_a.chars().collect();
-        let uniq_b: HashSet<_> = comp_b.chars().collect();
+        for a in comp_a.chars() {
+            uniq_a.insert(a);
+        }
+        for b in comp_b.chars() {
+            uniq_b.insert(b);
+        }
 
-        let uniq = uniq_a.intersection(&uniq_b).nth(0).unwrap();
+        let uniq = *uniq_a.intersection(&uniq_b).nth(0).unwrap() as u32;
 
-        let decimal_utf8 = *uniq as u32;
-        match decimal_utf8 {
+        match uniq {
             // A-Z (uppercase)
-            65..=90 => sum += (decimal_utf8 - 65 + 27) as i32,
+            65..=90 => sum += uniq - 65 + 27,
             // a-z (lowercase)
-            97..=122 => sum += (decimal_utf8 - 97 + 1) as i32,
+            97..=122 => sum += uniq - 97 + 1,
             _ => unreachable!(),
         }
     }
 
-    return sum;
+    return sum as i32;
 }
 
 pub fn part_two(input: &str) -> i32 {
