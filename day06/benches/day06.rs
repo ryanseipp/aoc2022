@@ -10,9 +10,25 @@ fn benchmark(c: &mut Criterion) {
     group.bench_with_input(BenchmarkId::new("part_one", "iterator"), &input, |b, i| {
         b.iter(|| part_one(i))
     });
+    group.bench_with_input(BenchmarkId::new("part_one", "bitwise"), &input, |b, i| {
+        b.iter(|| part_one_bitwise(i))
+    });
+    group.bench_with_input(
+        BenchmarkId::new("part_one", "bitwise_alt"),
+        &input,
+        |b, i| b.iter(|| part_one_bitwise_alt(i)),
+    );
     group.bench_with_input(BenchmarkId::new("part_two", "iterator"), &input, |b, i| {
         b.iter(|| part_two(i))
     });
+    group.bench_with_input(BenchmarkId::new("part_two", "bitwise"), &input, |b, i| {
+        b.iter(|| part_two_bitwise(i))
+    });
+    group.bench_with_input(
+        BenchmarkId::new("part_two", "bitwise_alt"),
+        &input,
+        |b, i| b.iter(|| part_two_bitwise_alt(i)),
+    );
 }
 
 criterion_group!(benches, benchmark);
