@@ -10,8 +10,14 @@ fn benchmark(c: &mut Criterion) {
     group.bench_with_input(BenchmarkId::new("part_one", "iterator"), &input, |b, i| {
         b.iter(|| part_one(i))
     });
+    group.bench_with_input(BenchmarkId::new("part_one", "by_char"), &input, |b, i| {
+        b.iter(|| part_one_by_char(i))
+    });
     group.bench_with_input(BenchmarkId::new("part_two", "iterator"), &input, |b, i| {
         b.iter(|| part_two(i))
+    });
+    group.bench_with_input(BenchmarkId::new("part_two", "by_char"), &input, |b, i| {
+        b.iter(|| part_two_by_char(i))
     });
 }
 
