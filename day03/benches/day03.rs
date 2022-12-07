@@ -15,6 +15,9 @@ fn benchmark(c: &mut Criterion) {
         &input,
         |b, i| b.iter(|| part_one_imperative(i)),
     );
+    group.bench_with_input(BenchmarkId::new("part_one", "bitwise"), &input, |b, i| {
+        b.iter(|| part_one_bitwise(i))
+    });
     group.bench_with_input(BenchmarkId::new("part_two", "iterator"), &input, |b, i| {
         b.iter(|| part_two(i))
     });
